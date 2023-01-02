@@ -1,0 +1,6 @@
+experiment_id;study;orig_ss;rep_ss;orig_d ;orig_ci_low;orig_ci_high
+experiment_01;AHEAD;12;118;2,0272;0,44;3,61
+experiment_02;IVOLDAMT;26;21;1,7259;0,77;2,67
+experiment_04;NRG1_PRT;16;210;2,662;1,189089;4,134311
+experiment_05;TPHIPAH;15;18;1,4581;0,07179143;2,844409
+experiment_08;PROOF;16;52;1,802892;0,4115101;3,19429
