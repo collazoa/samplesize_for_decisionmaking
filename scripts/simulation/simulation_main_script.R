@@ -29,12 +29,17 @@ source("./scripts/simulation/sim_approach_b.R")
 # Replication study powered at 80% for the lower 80% confidence bound 
 # obtained from the original study
 
-source("./scripts/simulation/sim_approach_c.R")
+# source("./scripts/simulation/sim_approach_c.R")
 
 # Approach D:
 # Replication study powered for reverse Bayesian approach (skeptical p-value)
 # with an effect size shrinkage estimate of 25%  
 
 # source("./scripts/simulation/sim_approach_d.R")
+
+
+# combining data sets and plotting results
+
+source("./scripts/analysis_plotting/plots.R") 
 
 

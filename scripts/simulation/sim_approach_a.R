@@ -90,7 +90,7 @@ for (i in 1:length(study_id_vector)) {
   
 }
 
-# rep_data_summary[[1]]
+rep_data_summary[[1]]
 
 row_names <- NULL
 col_names <- c("study_id", "t_value",
@@ -103,21 +103,21 @@ res_summary_rep_a_80 <-
                    dimnames = list(c(row_names),
                                    c(col_names))))
 
+
+
 res_summary_rep_a_80 <- 
   res_summary_rep_a_80 %>% 
   group_by(study_id) %>% 
-  summarize(mean_p = mean(p_value),
-            mean_t = mean(t_value),
-            mean_p = mean(p_value),
-            mean_effect = mean(effect),
-            mean_ci_low = mean(ci_low),
-            mean_ci_high = mean(ci_high)) %>% 
+  summarize(n_success = sum(p_value <= 0.05),
+            N = n(),
+            pct_success = n_success/N * 100) %>% 
   mutate(orig_ss = df_combined$orig_ss,
          rep_sample_size = df_combined$rep_sample_size_a_80,
          es_true = df_combined$orig_d / 2,
          sample_size_approach = "a_80pct",
-         project = df_combined$project)
-
+         project = df_combined$project,
+         scenario = "m_error")
+  
 
 # now use replication sample size with 95% power
 list_rep_data <- 
@@ -169,28 +169,300 @@ res_summary_rep_a_95 <-
 res_summary_rep_a_95 <- 
   res_summary_rep_a_95 %>% 
   group_by(study_id) %>% 
-  summarize(mean_p = mean(p_value),
-            mean_t = mean(t_value),
-            mean_p = mean(p_value),
-            mean_effect = mean(effect),
-            mean_ci_low = mean(ci_low),
-            mean_ci_high = mean(ci_high)) %>% 
+  summarize(n_success = sum(p_value <= 0.05),
+            N = n(),
+            pct_success = n_success/N * 100) %>% 
   mutate(orig_ss = df_combined$orig_ss,
          rep_sample_size = df_combined$rep_sample_size_a_95,
          es_true = df_combined$orig_d / 2,
          sample_size_approach = "a_95pct",
-         project = df_combined$project)
+         project = df_combined$project,
+         scenario = "m_error")
 
 
-
-res_summary_a <-
+res_summary_a_m_err <-
   bind_rows(res_summary_rep_a_80, res_summary_rep_a_95)
 
+# save(res_summary_a_m_err, file = "./data/res_summary_a_m_err.RData")
+
+##################################
+### Simulate replication study ###
+### SCENARIO 2: ##################
+##################################
+
+set.seed(84335)
+
+# first use replication sample size with 80% power
+list_rep_data <- 
+  
+  foreach(study_id = study_id_vector) %do% {
+    
+    rep_data <- list()
+    
+    for(i in 1:n_exp) {
+      
+      rep_data[[i]] <- 
+        generate_study(ES_true = 0,
+                       sample_size = df_combined$rep_sample_size_a_80[study_id])
+      
+      rep_data[[i]] <-
+        rep_data[[i]] %>% 
+        mutate(study_id = study_id_vector[study_id],
+               ES_true = 0)
+      
+    }
+    
+    list_rep_data <- rep_data
+    
+  }
+
+rep_data_summary <- list()
+
+plan(multicore)
+for (i in 1:length(study_id_vector)) {
+  
+  rep_data_summary[[i]] <- 
+    future_map(list_rep_data[[i]], get_summary_study_rep)
+  
+}
+
+rep_data_summary[[1]]
+
+row_names <- NULL
+col_names <- c("study_id", "t_value",
+               "p_value", "effect", 
+               "ci_low", "ci_high")
+
+res_summary_rep_a_80 <- 
+  as_tibble(matrix(unlist(rep_data_summary),
+                   nrow = n_exp * length(study_id_vector), byrow = TRUE,
+                   dimnames = list(c(row_names),
+                                   c(col_names))))
+
+
+
+res_summary_rep_a_80 <- 
+  res_summary_rep_a_80 %>% 
+  group_by(study_id) %>% 
+  summarize(n_success = sum(p_value <= 0.05),
+            N = n(),
+            pct_success = n_success/N * 100) %>% 
+  mutate(orig_ss = df_combined$orig_ss,
+         rep_sample_size = df_combined$rep_sample_size_a_80,
+         es_true = 0,
+         sample_size_approach = "a_80pct",
+         project = df_combined$project,
+         scenario = "null_effect")
+
+
+# now use replication sample size with 95% power
+list_rep_data <- 
+  
+  foreach(study_id = study_id_vector) %do% {
+    
+    rep_data <- list()
+    
+    for(i in 1:n_exp) {
+      
+      rep_data[[i]] <- 
+        generate_study(ES_true = 0,
+                       sample_size = df_combined$rep_sample_size_a_95[study_id])
+      
+      rep_data[[i]] <-
+        rep_data[[i]] %>% 
+        mutate(study_id = study_id_vector[study_id],
+               ES_true = 0)
+      
+    }
+    
+    list_rep_data <- rep_data
+    
+  }
+
+rep_data_summary <- list()
+
+plan(multicore)
+for (i in 1:length(study_id_vector)) {
+  
+  rep_data_summary[[i]] <- 
+    future_map(list_rep_data[[i]], get_summary_study_rep)
+  
+}
+
+rep_data_summary[[1]]
+
+row_names <- NULL
+col_names <- c("study_id", "t_value",
+               "p_value", "effect", 
+               "ci_low", "ci_high")
+
+res_summary_rep_a_95 <- 
+  as_tibble(matrix(unlist(rep_data_summary),
+                   nrow = n_exp * length(study_id_vector), byrow = TRUE,
+                   dimnames = list(c(row_names),
+                                   c(col_names))))
+
+
+
+res_summary_rep_a_95 <- 
+  res_summary_rep_a_95 %>% 
+  group_by(study_id) %>% 
+  summarize(n_success = sum(p_value <= 0.05),
+            N = n(),
+            pct_success = n_success/N * 100) %>% 
+  mutate(orig_ss = df_combined$orig_ss,
+         rep_sample_size = df_combined$rep_sample_size_a_95,
+         es_true = 0,
+         sample_size_approach = "a_95pct",
+         project = df_combined$project,
+         scenario = "null_effect")
+
+res_summary_a_null <-
+  bind_rows(res_summary_rep_a_80, res_summary_rep_a_95)
+
+# save(res_summary_a_null, file = "./data/res_summary_a_null.RData")
+
+
+##################################
+### Simulate replication study ###
+### SCENARIO 3: ##################
+##################################
+
+set.seed(84335)
+
+# first use replication sample size with 80% power
+list_rep_data <- 
+  
+  foreach(study_id = study_id_vector) %do% {
+    
+    rep_data <- list()
+    
+    for(i in 1:n_exp) {
+      
+      rep_data[[i]] <- 
+        generate_study(ES_true = df_combined$orig_d[study_id] - (1.25 * df_combined$orig_d[study_id]),
+                       sample_size = df_combined$rep_sample_size_a_80[study_id])
+      
+      rep_data[[i]] <-
+        rep_data[[i]] %>% 
+        mutate(study_id = study_id_vector[study_id],
+               ES_true = df_combined$orig_d[study_id] - (1.25 * df_combined$orig_d[study_id]))
+      
+    }
+    
+    list_rep_data <- rep_data
+    
+  }
+
+rep_data_summary <- list()
+
+plan(multicore)
+for (i in 1:length(study_id_vector)) {
+  
+  rep_data_summary[[i]] <- 
+    future_map(list_rep_data[[i]], get_summary_study_rep)
+  
+}
+
+rep_data_summary[[1]]
+
+row_names <- NULL
+col_names <- c("study_id", "t_value",
+               "p_value", "effect", 
+               "ci_low", "ci_high")
+
+res_summary_rep_a_80 <- 
+  as_tibble(matrix(unlist(rep_data_summary),
+                   nrow = n_exp * length(study_id_vector), byrow = TRUE,
+                   dimnames = list(c(row_names),
+                                   c(col_names))))
+
+
+
+res_summary_rep_a_80 <- 
+  res_summary_rep_a_80 %>% 
+  group_by(study_id) %>% 
+  summarize(n_success = sum(p_value <= 0.05),
+            N = n(),
+            pct_success = n_success/N * 100) %>% 
+  mutate(orig_ss = df_combined$orig_ss,
+         rep_sample_size = df_combined$rep_sample_size_a_80,
+         es_true = df_combined$orig_d - (1.25 * df_combined$orig_d),
+         sample_size_approach = "a_80pct",
+         project = df_combined$project,
+         scenario = "s_error")
+
+# now use replication sample size with 95% power
+list_rep_data <- 
+  
+  foreach(study_id = study_id_vector) %do% {
+    
+    rep_data <- list()
+    
+    for(i in 1:n_exp) {
+      
+      rep_data[[i]] <- 
+        generate_study(ES_true = df_combined$orig_d[study_id] - (1.25 * df_combined$orig_d[study_id]),
+                       sample_size = df_combined$rep_sample_size_a_95[study_id])
+      
+      rep_data[[i]] <-
+        rep_data[[i]] %>% 
+        mutate(study_id = study_id_vector[study_id],
+               ES_true = df_combined$orig_d[study_id] - (1.25 * df_combined$orig_d[study_id]))
+      
+    }
+    
+    list_rep_data <- rep_data
+    
+  }
+
+rep_data_summary <- list()
+
+plan(multicore)
+for (i in 1:length(study_id_vector)) {
+  
+  rep_data_summary[[i]] <- 
+    future_map(list_rep_data[[i]], get_summary_study_rep)
+  
+}
+
+rep_data_summary[[1]]
+
+row_names <- NULL
+col_names <- c("study_id", "t_value",
+               "p_value", "effect", 
+               "ci_low", "ci_high")
+
+res_summary_rep_a_95 <- 
+  as_tibble(matrix(unlist(rep_data_summary),
+                   nrow = n_exp * length(study_id_vector), byrow = TRUE,
+                   dimnames = list(c(row_names),
+                                   c(col_names))))
+
+
+
+res_summary_rep_a_95 <- 
+  res_summary_rep_a_95 %>% 
+  group_by(study_id) %>% 
+  summarize(n_success = sum(p_value <= 0.05),
+            N = n(),
+            pct_success = n_success/N * 100) %>% 
+  mutate(orig_ss = df_combined$orig_ss,
+         rep_sample_size = df_combined$rep_sample_size_a_95,
+         es_true = df_combined$orig_d - (1.25 * df_combined$orig_d),
+         sample_size_approach = "a_95pct",
+         project = df_combined$project,
+         scenario = "s_error")
+
+res_summary_a_s_err <-
+  bind_rows(res_summary_rep_a_80, res_summary_rep_a_95)
+
+# save(res_summary_a_s_err, file = "./data/res_summary_a_s_err.RData")
+
+
+res_summary_a <- 
+  bind_rows(res_summary_a_m_err, 
+            res_summary_a_null, 
+            res_summary_a_s_err)
+
 save(res_summary_a, file = "./data/res_summary_a.RData")
-
-# res_summary_a$rep_success <-
-#   ifelse(res_summary_a$mean_p <= 0.05, 1, 0)
-
-
-
-

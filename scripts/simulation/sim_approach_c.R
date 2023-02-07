@@ -10,18 +10,29 @@ load("./data/df_combined.RData")
 # Approach C:
 # Replication study powered at 80% for the lower 80% confidence bound 
 # obtained from the original study
+# if lower CI bound < 0, the rep_sample_size_c column will display NA
 
 rep_sample_size_c <- NULL
 
 for (i in 1:nrow(df_combined)) {
   
-  rep_sample_size_c[i] <-
-    ceiling(sample_size_c(data = df_combined[i, ],
-                          power = 0.8))
+  if (df_combined$orig_ci_low[i] > 0) {
+    
+    rep_sample_size_c[i] <-
+      ceiling(sample_size_c(data = df_combined[i, ],
+                            power = 0.8))
+    
+  } else {
+    
+    rep_sample_size_c[i] <- NA
+    
+  }
   
 }
 
 df_combined$rep_sample_size_c <- rep_sample_size_c * 2
+
+sum(is.na(df_combined$rep_sample_size_c))
 
 ##################################
 ### Simulate replication study ###
@@ -38,7 +49,7 @@ df_combined <-
 set.seed(84335)
 
 # number of experiments we run for each true underlying effect size
-n_exp <- 5 
+n_exp <- 10
 
 study_id_vector <- c(1:86)
 
@@ -51,8 +62,8 @@ list_rep_data <-
     for(i in 1:n_exp) {
       
       rep_data[[i]] <- 
-        generate_study(df_combined$orig_d[study_id] / 2,
-                       sample_size = df_combined$rep_sample_size_c[study_id])
+        
+        # insert a function to meta-analyse the two effect sizes
       
       rep_data[[i]] <-
         rep_data[[i]] %>% 
@@ -61,49 +72,103 @@ list_rep_data <-
       
     }
     
-    list_rep_data <- rep_data
-    
-  }
-
-rep_data_summary <- list()
-
-plan(multicore)
-for (i in 1:length(study_id_vector)) {
-  
-  rep_data_summary[[i]] <- 
-    future_map(list_rep_data[[i]], get_summary_study_rep)
-  
 }
 
-rep_data_summary[[1]]
+# row_names <- NULL
+# col_names <- c("study_id", "t_value",
+#                "p_value", "effect", 
+#                "ci_low", "ci_high")
+# 
+# res_summary_rep_c <- 
+#   as_tibble(matrix(unlist(rep_data_summary),
+#                    nrow = n_exp * length(study_id_vector), byrow = TRUE,
+#                    dimnames = list(c(row_names),
+#                                    c(col_names))))
+# 
+# res_summary_c <- 
+#   res_summary_rep_c %>% 
+#   group_by(study_id) %>% 
+#   summarize(n_success = ,
+#             N = n(),
+#             pct_success = n_success/N * 100) %>% 
+#   mutate(orig_ss = df_combined$orig_ss,
+#          rep_sample_size = df_combined$rep_sample_size_c,
+#          es_true = df_combined$orig_d / 2,
+#          sample_size_approach = "c",
+#          project = df_combined$project,
+#          scenario = "m_error")
 
-row_names <- NULL
-col_names <- c("study_id", "t_value",
-               "p_value", "effect", 
-               "ci_low", "ci_high")
 
-res_summary_rep_c <- 
-  as_tibble(matrix(unlist(rep_data_summary),
-                   nrow = n_exp * length(study_id_vector), byrow = TRUE,
-                   dimnames = list(c(row_names),
-                                   c(col_names))))
+# save(res_summary_c_m_err, file = "./data/res_summary_c_m_err.RData")
+
+
+##################################
+### Simulate replication study ###
+### SCENARIO 2: ##################
+##################################
+
+# row_names <- NULL
+# col_names <- c("study_id", "t_value",
+#                "p_value", "effect", 
+#                "ci_low", "ci_high")
+# 
+# res_summary_rep_c <- 
+#   as_tibble(matrix(unlist(rep_data_summary),
+#                    nrow = n_exp * length(study_id_vector), byrow = TRUE,
+#                    dimnames = list(c(row_names),
+#                                    c(col_names))))
+# 
+# res_summary_c <- 
+#   res_summary_rep_c %>% 
+#   group_by(study_id) %>% 
+#   summarize(n_success = ,
+#             N = n(),
+#             pct_success = n_success/N * 100) %>% 
+#   mutate(orig_ss = df_combined$orig_ss,
+#          rep_sample_size = df_combined$rep_sample_size_c,
+#          es_true = 0,
+#          sample_size_approach = "c",
+#          project = df_combined$project,
+#          scenario = "null_effect")
+
+# save(res_summary_c_null, file = "./data/res_summary_c_null.RData")
+
+
+##################################
+### Simulate replication study ###
+### SCENARIO 3: ##################
+##################################
+
+# row_names <- NULL
+# col_names <- c("study_id", "t_value",
+#                "p_value", "effect", 
+#                "ci_low", "ci_high")
+# 
+# res_summary_rep_c <- 
+#   as_tibble(matrix(unlist(rep_data_summary),
+#                    nrow = n_exp * length(study_id_vector), byrow = TRUE,
+#                    dimnames = list(c(row_names),
+#                                    c(col_names))))
+# 
+# res_summary_c <- 
+#   res_summary_rep_c %>% 
+#   group_by(study_id) %>% 
+#   summarize(n_success = ,
+#             N = n(),
+#             pct_success = n_success/N * 100) %>% 
+#   mutate(orig_ss = df_combined$orig_ss,
+#          rep_sample_size = df_combined$rep_sample_size_c,
+#          es_true = df_combined$orig_d - (1.25 * df_combined$orig_d),
+#          sample_size_approach = "c",
+#          project = df_combined$project,
+#          scenario = "s_error")
+
+# save(res_summary_c_s_err, file = "./data/res_summary_c_s_err.RData")
+
 
 res_summary_c <- 
-  res_summary_rep_c %>% 
-  group_by(study_id) %>% 
-  summarize(mean_p = mean(p_value),
-            mean_t = mean(t_value),
-            mean_p = mean(p_value),
-            mean_effect = mean(effect),
-            mean_ci_low = mean(ci_low),
-            mean_ci_high = mean(ci_high)) %>% 
-  mutate(orig_ss = df_combined$orig_ss,
-         sesoi = df_combined$SESOI,
-         rep_sample_size = df_combined$rep_sample_size_c,
-         es_true = df_combined$orig_d / 2,
-         sample_size_approach = "c",
-         project = df_combined$project)
-
+  bind_rows(res_summary_c_m_err, 
+            res_summary_c_null, 
+            res_summary_c_s_err)
 
 save(res_summary_c, file = "./data/res_summary_c.RData")
-

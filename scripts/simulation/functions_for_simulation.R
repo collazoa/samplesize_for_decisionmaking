@@ -7,16 +7,15 @@
 
 sample_size_a <- 
   
-  function(data, sample_size, max_sample_size = 200,
+  function(data, sample_size, max_sample_size = 175,
            alpha = .05, power = .8) {
   
   aa <- data
   
   es_measured <- abs(aa$orig_d) # take initial study main effect
-    # if(es_measured > 16) es_measured <- 16
+  
     if(es_measured == 0) es_measured <- 0.0001
     
-  
   bb <- power.t.test(delta = es_measured, sd = 1, sig.level = alpha, power = power,
                      type = "two.sample",
                      alternative = "one.sided")
@@ -35,7 +34,7 @@ sample_size_a <-
 
 sample_size_b <- 
   
-  function(data, sample_size, max_sample_size = 200,
+  function(data, sample_size, max_sample_size = 175,
            alpha = .05, SESOI, power = .8) {
     
     aa <- data
@@ -67,16 +66,12 @@ sample_size_b <-
 
 sample_size_c <- 
   
-  function(data, sample_size, max_sample_size = 200,
+  function(data, sample_size, max_sample_size = 175,
            alpha = .05, power = .8) {
     
     aa <- data
     
     es_measured <- aa$orig_ci_low # take lower 80% CI bound
-    # if(es_measured > 16) es_measured <- 16
-    if(es_measured == 0) es_measured <- 0.0001
-    if(es_measured < 0) es_measured <- 0.0001
-    
     
     bb <- power.t.test(delta = es_measured, sd = 1, sig.level = alpha, power = power,
                        type = "two.sample",
@@ -87,7 +82,15 @@ sample_size_c <-
       else return(bb$n)
       
     }
+
+  }
+
+
+sample_size_d <- 
+  
+  function() {
     
+    # insert function to calculate N here >< Anja
   }
 
 ####################################

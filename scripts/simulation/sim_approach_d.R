@@ -14,3 +14,22 @@ load("./data/df_combined.RData")
 rep_sample_size_d <- NULL
 
 # insert function to compute replication sample size >> Anja
+
+
+
+##################################
+### Simulate replication study ###
+### SCENARIO 1: ##################
+##################################
+
+
+##################################
+### Simulate replication study ###
+### SCENARIO 2: ##################
+##################################
+
+
+##################################
+### Simulate replication study ###
+### SCENARIO 3: ##################
+##################################

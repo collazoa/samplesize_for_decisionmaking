@@ -6,6 +6,7 @@ library(effectsize)
 library(ReplicationSuccess)
 library(DescTools)
 library(kableExtra)
+library(ggbeeswarm)
 
 library(furrr)
 library(future)
