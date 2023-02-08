@@ -2,7 +2,7 @@
 # Brasilian reproducibility initiative
 ######################################
 
-setwd("~/Desktop/samplesize_for_decisionmaking")
+#setwd("~/Desktop/samplesize_for_decisionmaking")
 
 #setwd("C:/Users/collazoa/OneDrive - Charit? - Universit?tsmedizin Berlin/Dokumente/GitHub/BRI")
 source("./scripts/data_wrangling/load_packages.R")
@@ -48,7 +48,7 @@ sapply(1:ncol(bri), function(i) {
 
 
 
-
+bri$orig_z <- numeric(length = nrow(bri))
 bri$orig_ci_low<-numeric(length = nrow(bri))
 bri$orig_ci_high<-numeric(length = nrow(bri))
 bri$orig_d<-numeric(length = nrow(bri))
@@ -73,6 +73,7 @@ bri$orig_ci_high_z<-numeric(length = nrow(bri))
 bri$orig_se_z<-numeric(length = nrow(bri))
 
 for (i in 1:nrow(bri)) {
+  bri$orig_z[i] <- FisherZ(d_to_r(bri$orig_d[i]))
   bri$orig_ci_low_z[i]<-FisherZ(rho = d_to_r(bri$orig_ci_low[i])) 
   bri$orig_ci_high_z[i]<-FisherZ(rho = d_to_r(bri$orig_ci_high[i]))
   bri$orig_se_z[i]<-ci2se(lower = bri$orig_ci_low_z[i], upper = bri$orig_ci_high_z[i])
@@ -89,7 +90,7 @@ for (i in 1:nrow(bri)) {
 }
 
 bri$orig_ss <- 
-  bri$Reported.Control.Sample.Size + bri$Reported.Treated.Sample.Size
+  bri$Assumed.Control.Sample.Size + bri$Assumed.Treated.Sample.Size
 
 
 bri$project<-"BRI"

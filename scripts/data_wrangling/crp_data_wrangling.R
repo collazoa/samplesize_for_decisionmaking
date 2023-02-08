@@ -4,7 +4,7 @@
 
 #preparing crp (Reproducibility Project Cancer Biology) data set 
 
-setwd("~/Desktop/samplesize_for_decisionmaking")
+#setwd("~/Desktop/samplesize_for_decisionmaking")
 
 #setwd("C:/Users/collazoa/OneDrive - Charit? - Universit?tsmedizin Berlin/Dokumente/GitHub/Cancer_Reproducibility")
 source("./scripts/data_wrangling/load_packages.R")
@@ -40,11 +40,13 @@ crp<-crp[,sel]
 names<-c("orig_ss", "orig_p_2sided", "orig_d", "orig_ci_low", "orig_ci_high")
 colnames(crp)<-names
 
+crp$orig_z <- numeric(length = nrow(crp))
 crp$orig_ci_low_z<-numeric(length = nrow(crp))
 crp$orig_ci_high_z<-numeric(length = nrow(crp))
 crp$orig_se_z<-numeric(length = nrow(crp))
 
 for (i in 1:nrow(crp)) {
+  crp$orig_z[i] <- FisherZ(d_to_r(crp$orig_d[i]))
   crp$orig_ci_high_z[i]<-FisherZ(d_to_r(crp$orig_ci_high[i]))
   crp$orig_ci_low_z[i]<-FisherZ(d_to_r(crp$orig_ci_low[i]))
   crp$orig_se_z[i]<-ci2se(lower = crp$orig_ci_low_z[i], upper = crp$orig_ci_high_z[i])
