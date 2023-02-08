@@ -85,14 +85,23 @@ sample_size_c <-
 
   }
 
+# approach D, calculating sample size for Replication Success according to the pSceptical (Held 2020)
+# allowing for a 25% shrinkage of the effect size 
 
 sample_size_d <- 
   
-  function() {
+  function(data, max_sample_size = 175, power = .8, shrinkage = .25) {
     
-    # insert function to calculate N here >< Anja
+    aa <- data 
+    
+    zo <- data$orig_z/data$orig_se_z
+    
+    bb <- sampleSizeReplicationSuccess(zo = zo, power = power, level = 0.025, type = "golden", 
+                                       alternative = "one.sided", designPrior = "conditional", 
+                                       shrinkage = shrinkage)
+    
+    return(bb * data$orig_ss)
   }
-
 ####################################
 ### conducting replication study ###
 ####################################
@@ -105,13 +114,15 @@ generate_study <-
     ES_mod <- ES_true + l_bias
     sample_data <- data.frame(values = c(rnorm(sample_size/2, 0, pop_sd),
                                          rnorm(sample_size/2, ES_mod, pop_sd)),
-                              treatment = rep(c("control", "atreat"),
+                              intervention = rep(c("control", "atreat"),
                                               each = sample_size/2),
                               sample_size = sample_size)
     
     
     return(sample_data)
   }
+
+
 
 
 get_summary_study_rep <- function(study_data) {
@@ -121,21 +132,16 @@ get_summary_study_rep <- function(study_data) {
               var.equal = FALSE,
               conf.level = .95)
   
-  p_value <- t$p.value
-  CI      <- t$conf.int
-  effect  <- t$statistic/sqrt(nrow(study_data)) # one-sided t-test
-  
-  
   study_summary <-
     study_data %>%
-    group_by(study_id, treatment) %>%
+    group_by(study_id, intervention) %>%
     summarize(mean_group = mean(values),
               sd_group = sd(values)) %>%
     mutate(t_value = round(t$statistic, 3),
            p_value = round(t$p.value, 3),
            ci_low = round(t$conf.int[1], 3),
            ci_high = round(t$conf.int[2], 3),
-           effect = round(effect, 3))
+           effect = round(t$statistic/sqrt(nrow(study_data)), 3)) # Cohen's d, one-sided t-test
   
   study_summary <-
     study_summary %>%
@@ -145,5 +151,31 @@ get_summary_study_rep <- function(study_data) {
 }
 
 
+get_summary_study_rep_pSceptical <- function(study_data) {
+  
+  re<-esc_mean_sd(
+    grp2m = mean(study_data[study_data$treatment == "A",]$values),
+    grp2sd = sd(study_data[study_data$treatment == "A",]$values), 
+    grp2n = length(study_data[study_data$treatment == "A",]$values),
+    grp1m = mean(study_data[study_data$treatment == "B",]$values),
+    grp1sd = sd(study_data[study_data$treatment == "B",]$values),
+    grp1n = length(study_data[study_data$treatment == "B",]$values),
+    es.type = "d")
+  
+  study_summary <-
+    study_data %>%
+    group_by(study_id, treatment) %>%
+    summarize(mean_group = mean(values),
+              sd_group = sd(values)) %>%
+    mutate(rep_d = re$es,
+           ci_low = re$ci.lo,
+           ci_high = re$ci.hi,
+           rep_z =  FisherZ(d_to_r(rep_d)),
+           rep_ci_low_z = FisherZ(rho = d_to_r(ci_low)), 
+           rep_ci_high_z = FisherZ(rho = d_to_r(ci_high)),
+           rep_se_z = ci2se(lower = rep_ci_low_z, upper = rep_ci_high_z), 
+           rep_p_value = ci2p(lower = rep_ci_low_z, upper = rep_ci_high_z, alternative = "greater"))
+  
+}
 
 
