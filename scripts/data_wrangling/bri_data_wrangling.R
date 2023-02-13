@@ -68,6 +68,30 @@ for (i in 1:nrow(bri)) {
         bri$orig_ci_low[i]<-re$ci.lo
 }     
 
+vec_neg <- which(bri$orig_d < 0)
+
+
+bri$orig_d[vec_neg] <- abs(bri$orig_d[vec_neg])
+
+bri$orig_ci_low2[vec_neg] <- bri$orig_ci_high[vec_neg]
+bri$orig_ci_high2[vec_neg] <- bri$orig_ci_low[vec_neg]
+bri$orig_ci_low[vec_neg] <- bri$orig_ci_low2[vec_neg]
+bri$orig_ci_high[vec_neg] <- bri$orig_ci_high2[vec_neg]
+
+
+
+bri$orig_ci_high <- abs(bri$orig_ci_high) 
+
+for (i in 1:length(bri$orig_ci_low[vec_neg])) {
+  if (bri$orig_ci_low[vec_neg][i] < 0 ) {
+    bri$orig_ci_low[vec_neg][i] <- abs(bri$orig_ci_low[vec_neg][i]) 
+  } else {bri$orig_ci_low[vec_neg][i] <- -1* bri$orig_ci_low[vec_neg][i] }
+}
+
+bri$orig_ci_high2 <- NULL
+bri$orig_ci_low2 <- NULL
+
+
 bri$orig_ci_low_z<-numeric(length = nrow(bri))
 bri$orig_ci_high_z<-numeric(length = nrow(bri))
 bri$orig_se_z<-numeric(length = nrow(bri))
@@ -94,3 +118,4 @@ bri$orig_ss <-
 
 
 bri$project<-"BRI"
+
