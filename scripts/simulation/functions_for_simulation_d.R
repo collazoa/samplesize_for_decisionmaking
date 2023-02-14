@@ -1,6 +1,6 @@
 sample_size_d <- 
   
-  function(data, max_sample_size = 175, power = .8, shrinkage = .25) {
+  function(data, power = .8, shrinkage = .25) {
     
     aa <- data 
     
