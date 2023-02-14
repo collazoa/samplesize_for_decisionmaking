@@ -37,11 +37,6 @@ df_combined$rep_sample_size_c <- rep_sample_size_c * 2
 
 sum(is.na(df_combined$rep_sample_size_c))
 
-
-# test <- 
-#   df_combined %>% 
-#   filter(is.na(rep_sample_size_c))
-
 helper <- which(df_combined$rep_sample_size_c != is.na(df_combined$rep_sample_size_c))
 
 ##################################
@@ -59,7 +54,7 @@ df_combined <-
 set.seed(84335)
 
 # number of experiments we run for each true underlying effect size
-n_exp <- 10
+n_exp <- 2
 
 study_id_vector <- c(1:86)
 
@@ -101,8 +96,7 @@ for (i in 1:length(study_id_vector[helper])) {
 # rep_data_summary[[1]]
 
 row_names <- NULL
-col_names <- c("study_id", "t_value", "p_value", 
-               "ci_low", "ci_high", "effect")
+col_names <- c("study_id", "p_value", "effect")
 
 res_summary_rep_c <-
   as_tibble(matrix(unlist(rep_data_summary),
@@ -122,6 +116,15 @@ res_summary_c <-
          sample_size_approach = "c",
          project = df_combined$project[helper],
          scenario = "m_error")
+
+helper_dat <-
+  df_combined %>% 
+  filter(is.na(rep_sample_size_c)) %>% 
+  select(study_id, orig_ss, project)
+
+res_summary_c_m_err <-
+  bind_rows(helper_dat, res_summary_c) %>% 
+  arrange(study_id)
 
 
 # save(res_summary_c_m_err, file = "./data/res_summary_c_m_err.RData")
@@ -172,12 +175,11 @@ for (i in 1:length(study_id_vector[helper])) {
 # rep_data_summary[[1]]
 
 row_names <- NULL
-col_names <- c("study_id", "t_value", "p_value", 
-               "ci_low", "ci_high", "effect")
+col_names <- c("study_id", "p_value", "effect")
 
 res_summary_rep_c <-
   as_tibble(matrix(unlist(rep_data_summary),
-                   nrow = n_exp * length(study_id_vector), byrow = TRUE,
+                   nrow = n_exp * length(study_id_vector[helper]), byrow = TRUE,
                    dimnames = list(c(row_names),
                                    c(col_names))))
 
@@ -193,6 +195,15 @@ res_summary_c <-
          sample_size_approach = "c",
          project = df_combined$project[helper],
          scenario = "null_effect")
+
+helper_dat <-
+  df_combined %>% 
+  filter(is.na(rep_sample_size_c)) %>% 
+  select(study_id, orig_ss, project)
+
+res_summary_c_null <-
+  bind_rows(helper_dat, res_summary_c) %>% 
+  arrange(study_id)
 
 # save(res_summary_c_null, file = "./data/res_summary_c_null.RData")
 
@@ -242,12 +253,11 @@ for (i in 1:length(study_id_vector[helper])) {
 # rep_data_summary[[1]]
 
 row_names <- NULL
-col_names <- c("study_id", "t_value", "p_value", 
-               "ci_low", "ci_high", "effect")
+col_names <- c("study_id", "p_value", "effect")
 
 res_summary_rep_c <-
   as_tibble(matrix(unlist(rep_data_summary),
-                   nrow = n_exp * length(study_id_vector), byrow = TRUE,
+                   nrow = n_exp * length(study_id_vector[helper]), byrow = TRUE,
                    dimnames = list(c(row_names),
                                    c(col_names))))
 
@@ -263,6 +273,15 @@ res_summary_c <-
          sample_size_approach = "c",
          project = df_combined$project[helper],
          scenario = "null_effect")
+
+helper_dat <-
+  df_combined %>% 
+  filter(is.na(rep_sample_size_c)) %>% 
+  select(study_id, orig_ss, project)
+
+res_summary_c_s_err <-
+  bind_rows(helper_dat, res_summary_c) %>% 
+  arrange(study_id)
 
 # save(res_summary_c_s_err, file = "./data/res_summary_c_s_err.RData")
 

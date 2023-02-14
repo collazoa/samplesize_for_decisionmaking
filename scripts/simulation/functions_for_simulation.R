@@ -7,7 +7,7 @@
 
 sample_size_a <- 
   
-  function(data, sample_size, max_sample_size = 175,
+  function(data, sample_size, max_sample_size = 140,
            alpha = .05, power = .8) {
   
   aa <- data
@@ -34,7 +34,7 @@ sample_size_a <-
 
 sample_size_b <- 
   
-  function(data, sample_size, max_sample_size = 175,
+  function(data, sample_size, max_sample_size = 140,
            alpha = .05, SESOI, power = .8) {
     
     aa <- data
@@ -66,7 +66,7 @@ sample_size_b <-
 
 sample_size_c <- 
   
-  function(data, sample_size, max_sample_size = 175,
+  function(data, sample_size, max_sample_size = 140,
            alpha = .05, power = .8) {
     
     aa <- data
@@ -90,7 +90,7 @@ sample_size_c <-
 
 sample_size_d <- 
   
-  function(data, max_sample_size = 175, power = .8, shrinkage = .25) {
+  function(data, max_sample_size = 140, power = .8, shrinkage = .25) {
     
     aa <- data 
     
@@ -138,10 +138,7 @@ get_summary_study_rep <- function(study_data) {
     group_by(study_id, intervention) %>%
     summarize(mean_group = mean(values),
               sd_group = sd(values)) %>%
-    mutate(t_value = round(t$statistic, 3),
-           p_value = round(t$p.value, 3),
-           ci_low = round(t$conf.int[1], 3),
-           ci_high = round(t$conf.int[2], 3))
+    mutate(p_value = round(t$p.value, 3))
   
   effect <- 
     (study_summary$mean_group[1] - study_summary$mean_group[2]) /
@@ -149,7 +146,7 @@ get_summary_study_rep <- function(study_data) {
   
   study_summary <-
     study_summary %>%
-    group_by(study_id, t_value, p_value, ci_low, ci_high) %>%
+    group_by(study_id, p_value) %>%
     summarize(effect = mean(effect))
   
 }

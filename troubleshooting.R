@@ -58,8 +58,46 @@ sum(res_summary_rep_a_80$effect > res_summary_rep_a_80$ci_low)
 check <- which(res_summary_rep_a_80$effect < res_summary_rep_a_80$ci_low)
 
 
+sum(res_summary_rep_a_95$effect < res_summary_rep_a_95$ci_high)
+
+sum(res_summary_rep_a_95$effect > res_summary_rep_a_95$ci_low)
+
+check <- which(res_summary_rep_a_95$effect < res_summary_rep_a_95$ci_low)
+
 check <-
   res_summary_rep_a_80 %>% 
+  filter(effect < ci_low)
+
+
+check <-
+  res_summary_rep_a_95 %>% 
+  filter(effect < ci_low)
+
+
+sum(res_summary_rep_b_0.5$effect < res_summary_rep_b_0.5$ci_high)
+
+sum(res_summary_rep_b_0.5$effect > res_summary_rep_b_0.5$ci_low)
+
+check <-
+  res_summary_rep_b_0.5 %>% 
+  filter(effect < ci_low)
+
+
+sum(res_summary_rep_b_1.0$effect < res_summary_rep_b_1.0$ci_high)
+
+sum(res_summary_rep_b_1.0$effect > res_summary_rep_b_1.0$ci_low)
+
+check <-
+  res_summary_rep_b_1.0 %>% 
+  filter(effect < ci_low)
+
+
+sum(res_summary_rep_c$effect < res_summary_rep_c$ci_high)
+
+sum(res_summary_rep_c$effect > res_summary_rep_c$ci_low)
+
+check <-
+  res_summary_rep_c %>% 
   filter(effect < ci_low)
 
 
@@ -69,6 +107,8 @@ t <- t.test(test_data$values ~ test_data$intervention,
             alternative = "greater",
             var.equal = FALSE,
             conf.level = .95)
+
+str(t)
 
 ci <- t$conf.int
 
