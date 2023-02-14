@@ -127,10 +127,11 @@ generate_study <-
 
 get_summary_study_rep <- function(study_data) {
   
-  t <- t.test(study_data$values ~ study_data$treatment,
+  t <- t.test(study_data$values ~ study_data$intervention,
               alternative = "greater",
               var.equal = FALSE,
               conf.level = .95)
+  
   
   study_summary <-
     study_data %>%
@@ -140,8 +141,11 @@ get_summary_study_rep <- function(study_data) {
     mutate(t_value = round(t$statistic, 3),
            p_value = round(t$p.value, 3),
            ci_low = round(t$conf.int[1], 3),
-           ci_high = round(t$conf.int[2], 3),
-           effect = round(t$statistic/sqrt(nrow(study_data)), 3)) # Cohen's d, one-sided t-test
+           ci_high = round(t$conf.int[2], 3))
+  
+  effect <- 
+    (study_summary$mean_group[1] - study_summary$mean_group[2]) /
+    sqrt((study_summary$sd_group[1]^2 + study_summary$sd_group[2]^2)/2)
   
   study_summary <-
     study_summary %>%

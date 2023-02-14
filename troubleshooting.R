@@ -1,6 +1,6 @@
 
 
-power.t.test(delta = 0.77000000, sd = 1, sig.level = 0.05, power = 0.8,
+power.t.test(delta = 0.3, sd = 1, sig.level = 0.05, power = 0.8,
              type = "two.sample",
              alternative = "one.sided")
 
@@ -51,9 +51,65 @@ generate_study_test <-
 
 .25 * 2.0272
 
+sum(res_summary_rep_a_80$effect < res_summary_rep_a_80$ci_high)
+
+sum(res_summary_rep_a_80$effect > res_summary_rep_a_80$ci_low)
+
+check <- which(res_summary_rep_a_80$effect < res_summary_rep_a_80$ci_low)
+
+
+check <-
+  res_summary_rep_a_80 %>% 
+  filter(effect < ci_low)
+
+
+test_data <- list_rep_data[[12]][[2]]
+
+t <- t.test(test_data$values ~ test_data$intervention,
+            alternative = "greater",
+            var.equal = FALSE,
+            conf.level = .95)
+
+ci <- t$conf.int
+
+study_summary <-
+  test_data %>%
+  group_by(study_id, intervention) %>%
+  summarize(mean_group = mean(values),
+            sd_group = sd(values)) %>%
+  mutate(t_value = round(t$statistic, 3),
+         p_value = round(t$p.value, 3),
+         ci_low = round(ci[1], 3),
+         ci_high = round(ci[2], 3))
+         # effect = round(t$statistic/sqrt(nrow(test_data)), 3))
+
+
+effect <- 
+  (study_summary$mean_group[1] - study_summary$mean_group[2]) /
+  sqrt((study_summary$sd_group[1]^2 + study_summary$sd_group[2]^2)/2)
+
+
+effect2 <- 2 * t$statistic/sqrt(4)
+
+effect3 <- t$statistic * sqrt((2+2) / (2*2))
 
 
 
+study_summary2 <-
+  study_summary %>%
+  group_by(study_id, t_value, p_value, ci_low, ci_high) %>%
+  summarize(effect = mean(effect))
 
 
+effect = round(t$statistic/sqrt(nrow(test_data)), 3)
 
+ci_low = round(t$conf.int[1], 3)
+
+ci_high = round(t$conf.int[2], 3)
+
+ci <- t$conf.int
+
+str(ci)
+
+ci[1]
+ci[2]

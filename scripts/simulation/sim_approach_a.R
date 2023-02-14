@@ -90,12 +90,11 @@ for (i in 1:length(study_id_vector)) {
   
 }
 
-rep_data_summary[[1]]
+# rep_data_summary[[1]]
 
 row_names <- NULL
-col_names <- c("study_id", "t_value",
-               "p_value", "effect", 
-               "ci_low", "ci_high")
+col_names <- c("study_id", "t_value", "p_value", 
+               "ci_low", "ci_high", "effect")
 
 res_summary_rep_a_80 <- 
   as_tibble(matrix(unlist(rep_data_summary),
@@ -156,9 +155,8 @@ for (i in 1:length(study_id_vector)) {
 # rep_data_summary[[1]]
 
 row_names <- NULL
-col_names <- c("study_id", "t_value",
-               "p_value", "effect", 
-               "ci_low", "ci_high")
+col_names <- c("study_id", "t_value", "p_value", 
+               "ci_low", "ci_high", "effect")
 
 res_summary_rep_a_95 <- 
   as_tibble(matrix(unlist(rep_data_summary),
@@ -229,9 +227,8 @@ for (i in 1:length(study_id_vector)) {
 rep_data_summary[[1]]
 
 row_names <- NULL
-col_names <- c("study_id", "t_value",
-               "p_value", "effect", 
-               "ci_low", "ci_high")
+col_names <- c("study_id", "t_value", "p_value", 
+               "ci_low", "ci_high", "effect")
 
 res_summary_rep_a_80 <- 
   as_tibble(matrix(unlist(rep_data_summary),
@@ -292,9 +289,8 @@ for (i in 1:length(study_id_vector)) {
 rep_data_summary[[1]]
 
 row_names <- NULL
-col_names <- c("study_id", "t_value",
-               "p_value", "effect", 
-               "ci_low", "ci_high")
+col_names <- c("study_id", "t_value", "p_value", 
+               "ci_low", "ci_high", "effect")
 
 res_summary_rep_a_95 <- 
   as_tibble(matrix(unlist(rep_data_summary),
@@ -367,9 +363,8 @@ for (i in 1:length(study_id_vector)) {
 rep_data_summary[[1]]
 
 row_names <- NULL
-col_names <- c("study_id", "t_value",
-               "p_value", "effect", 
-               "ci_low", "ci_high")
+col_names <- c("study_id", "t_value", "p_value", 
+               "ci_low", "ci_high", "effect")
 
 res_summary_rep_a_80 <- 
   as_tibble(matrix(unlist(rep_data_summary),
@@ -429,9 +424,8 @@ for (i in 1:length(study_id_vector)) {
 rep_data_summary[[1]]
 
 row_names <- NULL
-col_names <- c("study_id", "t_value",
-               "p_value", "effect", 
-               "ci_low", "ci_high")
+col_names <- c("study_id", "t_value", "p_value", 
+               "ci_low", "ci_high", "effect")
 
 res_summary_rep_a_95 <- 
   as_tibble(matrix(unlist(rep_data_summary),
