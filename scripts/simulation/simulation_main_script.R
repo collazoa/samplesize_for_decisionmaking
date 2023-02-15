@@ -19,9 +19,8 @@ source("./scripts/simulation/sim_approach_a.R")
 
 # Approach B:
 # Replication study powered at 50% for the smallest effect size of interest (SESOI)
-# SESOI 1 = 0.5 (for orig. effect size 0.5-1.5)
-# SESOI 2 = 1.5 (for orig. effect size 1.5-2.5)
-# SESOI 3 = 2.5 (for orig. effect size > 2.5)
+# SESOI 1 = 0.5
+# SESOI 2 = 1.0
 
 source("./scripts/simulation/sim_approach_b.R")
 
