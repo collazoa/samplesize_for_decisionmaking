@@ -185,56 +185,58 @@ get_summary_study_rep_pSceptical <-
 #     
 #     return(bb * data$orig_ss)
 #   }
+
+
 # ####################################
 # ### conducting replication study ###
 # ####################################
 # 
 # # generate replication study data 
-# 
-# generate_study <- 
-#   function(ES_true = 1, sample_size = samp_size, l_bias = 0, pop_sd = 1) {
-#     
-#     ES_mod <- ES_true + l_bias
-#     sample_data <- data.frame(values = c(rnorm(sample_size/2, 0, pop_sd),
-#                                          rnorm(sample_size/2, ES_mod, pop_sd)),
-#                               intervention = rep(c("control", "atreat"),
-#                                               each = sample_size/2),
-#                               sample_size = sample_size)
-#     
-#     
-#     return(sample_data)
-#   }
-# 
-# 
-# 
-# 
-# get_summary_study_rep <- function(study_data) {
-#   
-#   t <- t.test(study_data$values ~ study_data$intervention,
-#               alternative = "greater",
-#               var.equal = FALSE,
-#               conf.level = .95)
-#   
-#   
-#   study_summary <-
-#     study_data %>%
-#     group_by(study_id, intervention) %>%
-#     summarize(mean_group = mean(values),
-#               sd_group = sd(values)) %>%
-#     mutate(p_value = round(t$p.value, 3))
-#   
-#   effect <- 
-#     (study_summary$mean_group[1] - study_summary$mean_group[2]) /
-#     sqrt((study_summary$sd_group[1]^2 + study_summary$sd_group[2]^2)/2)
-#   
-#   study_summary <-
-#     study_summary %>%
-#     group_by(study_id, p_value) %>%
-#     summarize(effect = mean(effect))
-#   
-# }
-# 
-# 
+
+generate_study <-
+  function(ES_true = 1, sample_size = samp_size, l_bias = 0, pop_sd = 1) {
+
+    ES_mod <- ES_true + l_bias
+    sample_data <- data.frame(values = c(rnorm(sample_size/2, 0, pop_sd),
+                                         rnorm(sample_size/2, ES_mod, pop_sd)),
+                              intervention = rep(c("control", "atreat"),
+                                              each = sample_size/2),
+                              sample_size = sample_size)
+
+
+    return(sample_data)
+  }
+
+
+
+
+get_summary_study_rep <- function(study_data) {
+
+  t <- t.test(study_data$values ~ study_data$intervention,
+              alternative = "greater",
+              var.equal = FALSE,
+              conf.level = .95)
+
+
+  study_summary <-
+    study_data %>%
+    group_by(study_id, intervention) %>%
+    summarize(mean_group = mean(values),
+              sd_group = sd(values)) %>%
+    mutate(p_value = round(t$p.value, 3))
+
+  effect <-
+    (study_summary$mean_group[1] - study_summary$mean_group[2]) /
+    sqrt((study_summary$sd_group[1]^2 + study_summary$sd_group[2]^2)/2)
+
+  study_summary <-
+    study_summary %>%
+    group_by(study_id, p_value) %>%
+    summarize(effect = mean(effect))
+
+}
+
+
 # get_summary_study_rep_pSceptical <- function(study_data) {
 #   
 #   re<-esc_mean_sd(

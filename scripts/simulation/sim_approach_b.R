@@ -1,8 +1,8 @@
-# setwd("~/Desktop/samplesize_for_decisionmaking")
-# 
-# # source packages and additional functions
-# source("./scripts/simulation/functions_for_simulation.R")
-# source("./scripts/data_wrangling/load_packages.R")
+setwd("~/Desktop/samplesize_for_decisionmaking")
+
+# source packages and additional functions
+source("./scripts/simulation/functions_for_simulation.R")
+source("./scripts/data_wrangling/load_packages.R")
 
 # load combined data of all three replication projects
 load("./data/df_combined.RData")
@@ -65,7 +65,7 @@ df_combined <-
 set.seed(84335)
 
 # number of experiments we run for each true underlying effect size
-n_exp <- 10 
+n_exp <- 100 
 
 study_id_vector <- c(1:86)
 
@@ -190,6 +190,10 @@ res_summary_rep_b_1.0 <-
 
 res_summary_b_m_err <-
   bind_rows(res_summary_rep_b_0.5, res_summary_rep_b_1.0)
+
+res_summary_b_m_err$conducted <- 
+  ifelse(is.na(res_summary_b_m_err$rep_sample_size) | res_summary_b_m_err$rep_sample_size >= 280, "unfeasible", 
+         ifelse(res_summary_b_m_err$rep_sample_size < 4, "not_necessary", "yes"))
 
 # save(res_summary_b_m_err, file = "./data/res_summary_b_m_err.RData")
 
@@ -319,6 +323,10 @@ res_summary_rep_b_1.0 <-
 
 res_summary_b_null <-
   bind_rows(res_summary_rep_b_0.5, res_summary_rep_b_1.0)
+
+res_summary_b_null$conducted <- 
+  ifelse(is.na(res_summary_b_null$rep_sample_size) | res_summary_b_null$rep_sample_size >= 280, "unfeasible", 
+         ifelse(res_summary_b_null$rep_sample_size < 4, "not_necessary", "yes"))
 
 # save(res_summary_b_null, file = "./data/res_summary_b_null.RData")
 
@@ -450,6 +458,11 @@ res_summary_rep_b_1.0 <-
 res_summary_b_s_err <-
   bind_rows(res_summary_rep_b_0.5, res_summary_rep_b_1.0)
 
+res_summary_b_s_err$conducted <- 
+  ifelse(is.na(res_summary_b_s_err$rep_sample_size) | res_summary_b_s_err$rep_sample_size >= 280, "unfeasible", 
+         ifelse(res_summary_b_s_err$rep_sample_size < 4, "not_necessary", "yes"))
+
+
 # save(res_summary_b_s_err, file = "./data/res_summary_b_s_err.RData")
 
 
@@ -458,4 +471,4 @@ res_summary_b <-
             res_summary_b_null, 
             res_summary_b_s_err)
 
-save(res_summary_b, file = "./data/res_summary_b.RData")
+# save(res_summary_b, file = "./data/res_summary_b.RData")

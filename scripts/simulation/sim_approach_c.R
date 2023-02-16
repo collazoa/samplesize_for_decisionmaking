@@ -54,7 +54,7 @@ df_combined <-
 set.seed(84335)
 
 # number of experiments we run for each true underlying effect size
-n_exp <- 2
+n_exp <- 100
 
 study_id_vector <- c(1:86)
 
@@ -126,6 +126,10 @@ res_summary_c_m_err <-
   bind_rows(helper_dat, res_summary_c) %>% 
   arrange(study_id)
 
+res_summary_c_m_err$conducted <- 
+  ifelse(is.na(res_summary_c_m_err$rep_sample_size) | res_summary_c_m_err$rep_sample_size >= 280, "unfeasible", 
+         ifelse(res_summary_c_m_err$rep_sample_size < 4, "not_necessary", "yes"))
+
 
 # save(res_summary_c_m_err, file = "./data/res_summary_c_m_err.RData")
 
@@ -186,7 +190,7 @@ res_summary_rep_c <-
 res_summary_c <-
   res_summary_rep_c %>%
   group_by(study_id) %>%
-  summarize(n_success = ,
+  summarize(n_success = sum(p_value <= 0.05),
             N = n(),
             pct_success = n_success/N * 100) %>%
   mutate(orig_ss = df_combined$orig_ss[helper],
@@ -204,6 +208,10 @@ helper_dat <-
 res_summary_c_null <-
   bind_rows(helper_dat, res_summary_c) %>% 
   arrange(study_id)
+
+res_summary_c_null$conducted <- 
+  ifelse(is.na(res_summary_c_null$rep_sample_size) | res_summary_c_null$rep_sample_size >= 280, "unfeasible", 
+         ifelse(res_summary_c_null$rep_sample_size < 4, "not_necessary", "yes"))
 
 # save(res_summary_c_null, file = "./data/res_summary_c_null.RData")
 
@@ -264,7 +272,7 @@ res_summary_rep_c <-
 res_summary_c <-
   res_summary_rep_c %>%
   group_by(study_id) %>%
-  summarize(n_success = ,
+  summarize(n_success = sum(p_value <= 0.05),
             N = n(),
             pct_success = n_success/N * 100) %>%
   mutate(orig_ss = df_combined$orig_ss[helper],
@@ -272,7 +280,7 @@ res_summary_c <-
          es_true = df_combined$orig_d[study_id] - (1.25 * df_combined$orig_d[study_id]),
          sample_size_approach = "c",
          project = df_combined$project[helper],
-         scenario = "null_effect")
+         scenario = "s_error")
 
 helper_dat <-
   df_combined %>% 
@@ -282,6 +290,10 @@ helper_dat <-
 res_summary_c_s_err <-
   bind_rows(helper_dat, res_summary_c) %>% 
   arrange(study_id)
+
+res_summary_c_s_err$conducted <- 
+  ifelse(is.na(res_summary_c_s_err$rep_sample_size) | res_summary_c_s_err$rep_sample_size >= 280, "unfeasible", 
+         ifelse(res_summary_c_s_err$rep_sample_size < 4, "not_necessary", "yes"))
 
 # save(res_summary_c_s_err, file = "./data/res_summary_c_s_err.RData")
 

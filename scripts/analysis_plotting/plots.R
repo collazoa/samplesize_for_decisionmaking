@@ -1,10 +1,10 @@
 setwd("~/Desktop/samplesize_for_decisionmaking")
 
-load("./data/res_summary_a.RData")
+load("./data/res_summary_c.RData")
 load("./data/res_summary_b.RData")
 
 test <-
-  bind_rows(res_summary_a,
+  bind_rows(res_summary_c,
             res_summary_b)
 
 
