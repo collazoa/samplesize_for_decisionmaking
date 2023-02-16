@@ -1,4 +1,4 @@
-# setwd("~/Desktop/samplesize_for_decisionmaking")
+#setwd("~/Desktop/samplesize_for_decisionmaking")
 
 # setwd("C:/Users/collazoa/OneDrive - Charit? - Universit?tsmedizin Berlin/Dokumente/GitHub/code_replication_sample_size")
 source("./scripts/data_wrangling/bri_data_wrangling.R")

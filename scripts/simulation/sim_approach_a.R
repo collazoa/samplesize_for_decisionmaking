@@ -1,8 +1,6 @@
-setwd("~/Desktop/samplesize_for_decisionmaking")
-
-# source packages and additional functions
-source("./scripts/simulation/functions_for_simulation.R")
-source("./scripts/data_wrangling/load_packages.R")
+# source additional functions
+# source("functions_for_simulation.R")
+# source("load_packages.R")
 
 # load combined data of all three replication projects
 load("./data/df_combined.RData")
@@ -54,7 +52,7 @@ df_combined <-
 set.seed(84335)
 
 # number of experiments we run for each true underlying effect size
-n_exp <- 2
+n_exp <- 10
 
 study_id_vector <- c(1:86)
 
@@ -92,10 +90,12 @@ for (i in 1:length(study_id_vector)) {
   
 }
 
-# rep_data_summary[[1]]
+rep_data_summary[[1]]
 
 row_names <- NULL
-col_names <- c("study_id", "p_value", "effect")
+col_names <- c("study_id", "t_value",
+               "p_value", "effect", 
+               "ci_low", "ci_high")
 
 res_summary_rep_a_80 <- 
   as_tibble(matrix(unlist(rep_data_summary),
@@ -156,7 +156,9 @@ for (i in 1:length(study_id_vector)) {
 # rep_data_summary[[1]]
 
 row_names <- NULL
-col_names <- c("study_id", "p_value", "effect")
+col_names <- c("study_id", "t_value",
+               "p_value", "effect", 
+               "ci_low", "ci_high")
 
 res_summary_rep_a_95 <- 
   as_tibble(matrix(unlist(rep_data_summary),
@@ -224,10 +226,12 @@ for (i in 1:length(study_id_vector)) {
   
 }
 
-# rep_data_summary[[1]]
+rep_data_summary[[1]]
 
 row_names <- NULL
-col_names <- c("study_id", "p_value", "effect")
+col_names <- c("study_id", "t_value",
+               "p_value", "effect", 
+               "ci_low", "ci_high")
 
 res_summary_rep_a_80 <- 
   as_tibble(matrix(unlist(rep_data_summary),
@@ -285,10 +289,12 @@ for (i in 1:length(study_id_vector)) {
   
 }
 
-# rep_data_summary[[1]]
+rep_data_summary[[1]]
 
 row_names <- NULL
-col_names <- c("study_id", "p_value", "effect")
+col_names <- c("study_id", "t_value",
+               "p_value", "effect", 
+               "ci_low", "ci_high")
 
 res_summary_rep_a_95 <- 
   as_tibble(matrix(unlist(rep_data_summary),
@@ -358,10 +364,12 @@ for (i in 1:length(study_id_vector)) {
   
 }
 
-# rep_data_summary[[1]]
+rep_data_summary[[1]]
 
 row_names <- NULL
-col_names <- c("study_id", "p_value", "effect")
+col_names <- c("study_id", "t_value",
+               "p_value", "effect", 
+               "ci_low", "ci_high")
 
 res_summary_rep_a_80 <- 
   as_tibble(matrix(unlist(rep_data_summary),
@@ -421,7 +429,9 @@ for (i in 1:length(study_id_vector)) {
 rep_data_summary[[1]]
 
 row_names <- NULL
-col_names <- c("study_id", "p_value", "effect")
+col_names <- c("study_id", "t_value",
+               "p_value", "effect", 
+               "ci_low", "ci_high")
 
 res_summary_rep_a_95 <- 
   as_tibble(matrix(unlist(rep_data_summary),

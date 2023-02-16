@@ -7,7 +7,7 @@
 
 sample_size_a <- 
   
-  function(data, sample_size, max_sample_size = 140,
+  function(data, sample_size, max_sample_size = 175,
            alpha = .05, power = .8) {
   
   aa <- data
@@ -34,7 +34,7 @@ sample_size_a <-
 
 sample_size_b <- 
   
-  function(data, sample_size, max_sample_size = 140,
+  function(data, sample_size, max_sample_size = 175,
            alpha = .05, SESOI, power = .8) {
     
     aa <- data
@@ -66,7 +66,7 @@ sample_size_b <-
 
 sample_size_c <- 
   
-  function(data, sample_size, max_sample_size = 140,
+  function(data, sample_size, max_sample_size = 175,
            alpha = .05, power = .8) {
     
     aa <- data
@@ -94,14 +94,19 @@ sample_size_d <-
     
     aa <- data 
     
+    zo <- data$orig_z/data$orig_se_z
     
-    bb <- sampleSizeReplicationSuccess(zo = data$zo, power = power, level = 0.025, type = "golden", 
+    bb <- sampleSizeReplicationSuccess(zo = zo, power = power, level = 0.025, type = "golden", 
                                        alternative = "one.sided", designPrior = "conditional", 
                                        shrinkage = shrinkage)
     
     return(bb * data$orig_ss)
   }
+####################################
+### conducting replication study ###
+####################################
 
+# generate replication study data 
 
 generate_study <- 
   function(ES_true = 1, sample_size = samp_size, l_bias = 0, pop_sd = 1) {
@@ -110,7 +115,7 @@ generate_study <-
     sample_data <- data.frame(values = c(rnorm(sample_size/2, 0, pop_sd),
                                          rnorm(sample_size/2, ES_mod, pop_sd)),
                               intervention = rep(c("control", "atreat"),
-                                                 each = sample_size/2),
+                                              each = sample_size/2),
                               sample_size = sample_size)
     
     
@@ -120,22 +125,46 @@ generate_study <-
 
 
 
-get_summary_study_rep_pSceptical <- 
+get_summary_study_rep <- function(study_data) {
   
-  function(study_data, level = .025, alpha_s = 0.062) {
-  
-  re<-esc_mean_sd(
-    grp2m = mean(study_data[study_data$intervention == "control",]$values),
-    grp2sd = sd(study_data[study_data$intervention == "control",]$values), 
-    grp2n = length(study_data[study_data$intervention == "control",]$values),
-    grp1m = mean(study_data[study_data$intervention == "atreat",]$values),
-    grp1sd = sd(study_data[study_data$intervention == "atreat",]$values),
-    grp1n = length(study_data[study_data$intervention == "atreat",]$values),
-    es.type = "d")
+  t <- t.test(study_data$values ~ study_data$treatment,
+              alternative = "greater",
+              var.equal = FALSE,
+              conf.level = .95)
   
   study_summary <-
     study_data %>%
     group_by(study_id, intervention) %>%
+    summarize(mean_group = mean(values),
+              sd_group = sd(values)) %>%
+    mutate(t_value = round(t$statistic, 3),
+           p_value = round(t$p.value, 3),
+           ci_low = round(t$conf.int[1], 3),
+           ci_high = round(t$conf.int[2], 3),
+           effect = round(t$statistic/sqrt(nrow(study_data)), 3)) # Cohen's d, one-sided t-test
+  
+  study_summary <-
+    study_summary %>%
+    group_by(study_id, t_value, p_value, ci_low, ci_high) %>%
+    summarize(effect = mean(effect))
+  
+}
+
+
+get_summary_study_rep_pSceptical <- function(study_data) {
+  
+  re<-esc_mean_sd(
+    grp2m = mean(study_data[study_data$treatment == "A",]$values),
+    grp2sd = sd(study_data[study_data$treatment == "A",]$values), 
+    grp2n = length(study_data[study_data$treatment == "A",]$values),
+    grp1m = mean(study_data[study_data$treatment == "B",]$values),
+    grp1sd = sd(study_data[study_data$treatment == "B",]$values),
+    grp1n = length(study_data[study_data$treatment == "B",]$values),
+    es.type = "d")
+  
+  study_summary <-
+    study_data %>%
+    group_by(study_id, treatment) %>%
     summarize(mean_group = mean(values),
               sd_group = sd(values)) %>%
     mutate(rep_d = re$es,
@@ -145,32 +174,11 @@ get_summary_study_rep_pSceptical <-
            rep_ci_low_z = FisherZ(rho = d_to_r(ci_low)), 
            rep_ci_high_z = FisherZ(rho = d_to_r(ci_high)),
            rep_se_z = ci2se(lower = rep_ci_low_z, upper = rep_ci_high_z), 
-           rep_p_value = ci2p(lower = rep_ci_low_z, upper = rep_ci_high_z, alternative = "greater"), 
-           zr = rep_z/rep_se_z)
+           rep_p_value = ci2p(lower = rep_ci_low_z, upper = rep_ci_high_z, alternative = "greater"))
   
-  study_summary <- 
-    study_summary %>%
-    select(study_id, effect = rep_d, 
-           ci_low, ci_high, p_value = rep_p_value, 
-           rep_z, rep_se_z, zr)%>%
-    mutate(zo = study_data$zo[1], 
-           orig_ss = study_data$orig_ss[1], 
-           rep_ss = study_data$rep_ss[1])
-  
-  study_summary <- study_summary[1,]
-  
-  pScep <- pSceptical(zo = study_summary$zo, 
-                      zr = study_summary$zr, 
-                      c = study_summary$orig_ss/study_summary$rep_ss,
-                      alternative = "one.sided", 
-                      type = "golden")
-  
-  study_summary <- 
-    study_summary %>%
-    mutate(pScep = pScep,
-           success = ifelse(pScep < alpha_s, TRUE, FALSE))
 }
 
+<<<<<<< HEAD
 # sample_size_d <- 
 #   
 #   function(data, max_sample_size = 140, power = .8, shrinkage = .25) {
@@ -265,3 +273,6 @@ get_summary_study_rep <- function(study_data) {
 # }
 # 
 # 
+=======
+
+>>>>>>> b409d6925d68a0f22dc65fe09999bb1cd6c20f30
