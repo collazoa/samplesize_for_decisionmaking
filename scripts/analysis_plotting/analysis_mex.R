@@ -5,31 +5,23 @@ load("./data/res_summary_b.RData")
 load("./data/res_summary_c.RData")
 load("./data/res_summary_d.RData")
 
-res_summary_a$conducted <- 
-  ifelse(is.na(res_summary_a$rep_sample_size) | res_summary_a$rep_sample_size >= 280, "unfeasible", 
-         ifelse(res_summary_a$rep_sample_size < 4, "not_necessary", "yes"))
+# if all simulation scripts are run again the outcommented code below should be included already 
+# and does not need to be run again and can be deleted once checked
 
-
-for (i in 1:86) {
-  
-  res_summary_c$scenario[i] <- "m_error"
-}
-
-for (i in 87:172) {
-  
-  res_summary_c$scenario[i] <- "null_effect"
-}
-
-for (i in 173:258) {
-  
-  res_summary_c$scenario[i] <- "s_error"
-}
-
-names(res_summary_d)[6] <- "rep_sample_size"
-names(res_summary_d)[7] <- "es_true"
-
-res_summary_c$sample_size_approach <- "c"
-res_summary_d$sample_size_approach <- "d"
+# res_summary_a$conducted <- 
+#   ifelse(is.na(res_summary_a$rep_sample_size) | res_summary_a$rep_sample_size >= 280, "unfeasible", 
+#          ifelse(res_summary_a$rep_sample_size < 4, "not_necessary", "yes"))
+# 
+# 
+# res_summary_c$scenario[1:86] <- "m_error"
+# res_summary_c$scenario[87:172] <- "null_effect"
+# res_summary_c$scenario[173:258] <- "s_error"
+# 
+# names(res_summary_d)[6] <- "rep_sample_size"
+# names(res_summary_d)[7] <- "es_true"
+# 
+# res_summary_c$sample_size_approach <- "c"
+# res_summary_d$sample_size_approach <- "d"
 
 dat <-
   bind_rows(res_summary_a,
@@ -69,7 +61,7 @@ p.1 <-
                               "Skeptical \np-value")) +
   scale_fill_manual(limits = c("yes",
                                "unfeasible",
-                               "not_neccessary"),
+                               "not_neccessary"), # script contained typo, now corrected, should be changed here, once simulation is run again
                     labels = c("yes",
                                "no - unfeasible",
                                "no - not necessary"),
@@ -157,12 +149,6 @@ p.5 <-
   theme_bw()
 
 plot(p.5)
-
-
-# ggplot(res_summary_d %>% filter(conducted == "yes")) +
-#   geom_histogram(aes(x = rep_sample_size_d))+
-#   facet_wrap(~scenario) 
-# facet_wrap(~sample_size_approach)
 
 
 

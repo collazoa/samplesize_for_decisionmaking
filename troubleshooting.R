@@ -46,12 +46,17 @@ generate_study_test <-
   }
 
 
+library(compute.es)
+# des() function to compute ci around es
 
-2.0272 - (1.25 * 2.0272)
+test <- des(d = 2.0272000, 
+            n.1 = 6, 
+            n.2 = 6,
+            level = 80)
 
-.25 * 2.0272
+str(test)
 
-
+test$l.d
 
 
 

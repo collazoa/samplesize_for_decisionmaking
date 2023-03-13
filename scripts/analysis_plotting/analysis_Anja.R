@@ -186,7 +186,7 @@ d2$ratio_ss <-
 # data points 
 
 p2a <- ggplot(data = d2, aes(x = sample_size_approach, y = ratio_ss, color = sample_size_approach)) + 
-  geom_jitter(size = 2, width = 0.1) + 
+  geom_jitter(size = 2, width = 0.1) +
   coord_trans( y = "log10")+
   scale_y_continuous(breaks=c(0,0.5,1,2,5,10,25))+
   geom_abline(intercept = 1, slope = 0, color = "red", linetype = 2, alpha = 0.5)+
@@ -332,7 +332,7 @@ p3b <-
                     values = c("#E69F00", "#56B4E9", "#009E73", "grey55"))+ 
   labs(y = "percentage of replication success", 
        x = ""
-  )
+  ) +
   theme(legend.position = "bottom", 
         panel.grid.major = element_blank())
 

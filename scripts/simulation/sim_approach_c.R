@@ -15,11 +15,28 @@ load("./data/df_combined.RData")
 # obtained from the original study
 # if lower CI bound < 0, the rep_sample_size_c column will display NA
 
+# use des() function from compute.es package to compute CI around orig_d
+# ci_80_low is the lower bound of the 80% CI
+
+df_combined$ci_80_low <- NULL
+
+for (i in 1:nrow(df_combined)) {
+  
+  df_combined$ci_80_low[i] <-
+    
+    des(d =df_combined$ orig_d[i], 
+        n.1 = df_combined$orig_ss[i] / 2, 
+        n.2 = df_combined$orig_ss[i] / 2,
+        level = 80)$l.d
+  
+}
+
+# now compute replication sample size with the lower 80% confidence bound
 rep_sample_size_c <- NULL
 
 for (i in 1:nrow(df_combined)) {
   
-  if (df_combined$orig_ci_low[i] > 0) {
+  if (df_combined$ci_80_low[i] > 0) {
     
     rep_sample_size_c[i] <-
       ceiling(sample_size_c(data = df_combined[i, ],
@@ -35,8 +52,10 @@ for (i in 1:nrow(df_combined)) {
 
 df_combined$rep_sample_size_c <- rep_sample_size_c * 2
 
+# how many of the studies give NA for rep_sample_size?
 sum(is.na(df_combined$rep_sample_size_c))
 
+# for simulation do not take NAs
 helper <- which(df_combined$rep_sample_size_c != is.na(df_combined$rep_sample_size_c))
 
 ##################################
@@ -124,7 +143,11 @@ helper_dat <-
 
 res_summary_c_m_err <-
   bind_rows(helper_dat, res_summary_c) %>% 
-  arrange(study_id)
+  arrange(study_id) %>% 
+  mutate(es_true = df_combined$orig_d[study_id] / 2,
+         sample_size_approach = "c",
+         scenario = "m_error")
+  
 
 res_summary_c_m_err$conducted <- 
   ifelse(is.na(res_summary_c_m_err$rep_sample_size) | res_summary_c_m_err$rep_sample_size >= 280, "unfeasible", 
@@ -207,7 +230,10 @@ helper_dat <-
 
 res_summary_c_null <-
   bind_rows(helper_dat, res_summary_c) %>% 
-  arrange(study_id)
+  arrange(study_id) %>% 
+  mutate(es_true = 0,
+         sample_size_approach = "c",
+         scenario = "null_effect")
 
 res_summary_c_null$conducted <- 
   ifelse(is.na(res_summary_c_null$rep_sample_size) | res_summary_c_null$rep_sample_size >= 280, "unfeasible", 
@@ -289,7 +315,10 @@ helper_dat <-
 
 res_summary_c_s_err <-
   bind_rows(helper_dat, res_summary_c) %>% 
-  arrange(study_id)
+  arrange(study_id) %>% 
+  mutate(es_true = df_combined$orig_d[study_id] - (1.25 * df_combined$orig_d[study_id]),
+         sample_size_approach = "c",
+         scenario = "s_error")
 
 res_summary_c_s_err$conducted <- 
   ifelse(is.na(res_summary_c_s_err$rep_sample_size) | res_summary_c_s_err$rep_sample_size >= 280, "unfeasible", 

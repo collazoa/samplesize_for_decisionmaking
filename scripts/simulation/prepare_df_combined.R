@@ -40,7 +40,7 @@ vec_go <- ifelse(vec_unfeasible == FALSE & vec_not_nec == FALSE, TRUE, FALSE)
 vec_conducted <- vector(length = nrow(df_combined))
 vec_conducted[which(vec_go == TRUE)] <- "yes"
 vec_conducted[which(vec_unfeasible == TRUE)] <- "unfeasible"
-vec_conducted[which(vec_not_nec == TRUE)] <- "not_neccessary"
+vec_conducted[which(vec_not_nec == TRUE)] <- "not_necessary"
 
 df_combined$conducted <- vec_conducted
 
